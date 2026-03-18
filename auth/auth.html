@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WAYNE • Authentication</title>
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Anime.js for smooth animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    
+    <!-- Three.js for background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+            background: #0a042e;
+        }
+        
+        /* Three.js Canvas Background - 3 layers like index */
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        /* Main Container */
+        .auth-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Glass Card - EXACT copy of index card */
+        .auth-card {
+            width: 100%;
+            max-width: 600px; /* Same as index */
+            background: rgba(10, 4, 46, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(48, 233, 255, 0.2);
+            border-radius: 60px; /* Same as index */
+            padding: 60px 50px; /* Same as index */
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5),
+                        0 0 0 1px rgba(48, 233, 255, 0.1) inset,
+                        0 0 50px rgba(48, 233, 255, 0.3);
+            animation: cardFloat 6s ease-in-out infinite;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 30%, rgba(48, 233, 255, 0.1), transparent 70%);
+            animation: rotate 20s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0) rotateX(0deg); }
+            50% { transform: translateY(-15px) rotateX(2deg); }
+        }
+        
+        /* Logo Section - exactly like index */
+        .logo-section {
+            margin-bottom: 40px;
+            position: relative;
+        }
+        
+        .logo-section h1 {
+            font-size: 5rem; /* Same as index */
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #30e9ff, #a5b4ff, #fff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 8px; /* Same as index */
+            animation: gradientFlow 8s ease infinite;
+            text-shadow: 0 0 30px rgba(48, 233, 255, 0.5);
+            margin-bottom: 15px;
+        }
+        
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .logo-section .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem; /* Same as index */
+            letter-spacing: 6px; /* Same as index */
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .logo-section .subtitle::before,
+        .logo-section .subtitle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40px; /* Same as index */
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #30e9ff, transparent);
+        }
+        
+        .logo-section .subtitle::before {
+            left: -50px; /* Same as index */
+        }
+        
+        .logo-section .subtitle::after {
+            right: -50px; /* Same as index */
+        }
+        
+        /* Tab Switcher - styled like index loading tabs */
+        .auth-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px;
+            border-radius: 60px;
+            border: 1px solid rgba(48, 233, 255, 0.2);
+        }
+        
+        .auth-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 14px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.4s;
+            letter-spacing: 1px;
+        }
+        
+        .auth-tab.active {
+            background: linear-gradient(135deg, #30e9ff, #0d0551);
+            color: white;
+            box-shadow: 0 10px 20px rgba(48, 233, 255, 0.3);
+        }
+        
+        /* Forms */
+        .auth-form {
+            display: none;
+        }
+        
+        .auth-form.active {
+            display: block;
+            animation: formAppear 0.6s ease;
+        }
+        
+        @keyframes formAppear {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        /* Input Groups - styled like index loading message */
+        .input-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        .input-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+            text-align: left;
+        }
+        
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        
+        .input-wrapper i {
+            position: absolute;
+            left: 18px;
+            color: #30e9ff;
+            font-size: 1.2rem;
+            opacity: 0.7;
+            transition: all 0.3s;
+            z-index: 1;
+        }
+        
+        .input-wrapper input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(48, 233, 255, 0.2);
+            border-radius: 40px; /* Rounded like index */
+            padding: 16px 18px 16px 50px; /* Same as index loading message */
+            color: white;
+            font-size: 1rem;
+            transition: all 0.4s;
+        }
+        
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: #30e9ff;
+            box-shadow: 0 0 0 4px rgba(48, 233, 255, 0.2),
+                        0 0 30px rgba(48, 233, 255, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .input-wrapper input:focus + i {
+            opacity: 1;
+            transform: scale(1.2);
+            color: #30e9ff;
+        }
+        
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            color: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+        
+        .password-toggle:hover {
+            color: #30e9ff;
+            transform: scale(1.1);
+        }
+        
+        /* Auth Button - styled like index stat items */
+        .auth-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #30e9ff, #0d0551);
+            border: none;
+            border-radius: 40px; /* Same as index stats */
+            padding: 16px 10px; /* Same as index stats */
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.4s;
+            margin-top: 20px;
+            box-shadow: 0 10px 20px rgba(48, 233, 255, 0.3);
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(48, 233, 255, 0.5);
+        }
+        
+        .auth-btn:active {
+            transform: translateY(2px);
+        }
+        
+        /* Auth Links - styled like index auth link */
+        .auth-links {
+            text-align: center;
+            margin-top: 25px;
+        }
+        
+        .auth-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .auth-link i {
+            color: #30e9ff;
+            font-size: 0.9rem;
+            transition: transform 0.3s;
+        }
+        
+        .auth-link:hover {
+            color: #30e9ff;
+        }
+        
+        .auth-link:hover i {
+            transform: translateX(5px);
+        }
+        
+        /* Message Box - styled like index loading message */
+        .message-box {
+            padding: 16px 20px; /* Same as index loading message */
+            border-radius: 40px; /* Same as index */
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.95rem;
+            animation: messageSlide 0.5s ease;
+            border: 1px solid;
+        }
+        
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message-box.success {
+            background: rgba(40, 167, 69, 0.2);
+            border-color: rgba(40, 167, 69, 0.5);
+            color: #28a745;
+        }
+        
+        .message-box.error {
+            background: rgba(220, 53, 69, 0.2);
+            border-color: rgba(220, 53, 69, 0.5);
+            color: #ff6b6b;
+        }
+        
+        .message-box i {
+            font-size: 1.2rem;
+        }
+        
+        /* Loading Spinner - like index loader */
+        .btn-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Social Login - exactly like index */
+        .social-section {
+            margin-top: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .social-section::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(48, 233, 255, 0.3), transparent);
+        }
+        
+        .social-section p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(48, 233, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.4s;
+        }
+        
+        .social-icon:hover {
+            background: #30e9ff;
+            color: #0d0551;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(48, 233, 255, 0.4);
+        }
+        
+        /* Version Badge - like index */
+        .version-badge {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            color: rgba(48, 233, 255, 0.5);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            z-index: 2;
+            padding: 5px 15px;
+            background: rgba(48, 233, 255, 0.1);
+            border-radius: 30px;
+            border: 1px solid rgba(48, 233, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        
+        /* Floating Particles - like index */
+        .floating-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #30e9ff;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 10s linear infinite;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        @keyframes float {
+            from {
+                transform: translateY(100vh) translateX(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            to {
+                transform: translateY(-100px) translateX(100px);
+                opacity: 0;
+            }
+        }
+        
+        /* Responsive - same as index */
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 40px 30px;
+            }
+            
+            .logo-section h1 {
+                font-size: 3.5rem;
+                letter-spacing: 4px;
+            }
+            
+            .version-badge {
+                bottom: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Three.js Canvas - 3 layers like index -->
+    <canvas id="canvas-bg"></canvas>
+    
+    <!-- Floating Particles - like index -->
+    <div id="floating-particles"></div>
+    
+    <!-- Version Badge - like index -->
+    <div class="version-badge">
+        <i class="fas fa-code-branch" style="margin-right: 5px;"></i> v2.0.0
+    </div>
+    
+    <div class="auth-wrapper">
+        <div class="auth-card" id="authCard">
+            <!-- Logo Section - exactly like index -->
+            <div class="logo-section">
+                <h1>WAYNE</h1>
+                <div class="subtitle">SOCIAL COMMUNITY</div>
+            </div>
+            
+            <!-- Tab Switcher - like index loading tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">LOGIN</button>
+                <button class="auth-tab" onclick="switchTab('register')">REGISTER</button>
+                <button class="auth-tab" onclick="switchTab('reset')">RESET</button>
+            </div>
+            
+            <!-- Message Container - like index loading message -->
+            <div id="messageContainer"></div>
+            
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form active">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="loginEmail" placeholder="your@email.com">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="loginPassword" placeholder="••••••••">
+                        <i class="fas fa-eye password-toggle" onclick="togglePassword('loginPassword')"></i>
+                    </div>
+                </div>
+                
+                <button class="auth-btn" onclick="login()" id="loginBtn">
+                    <span>LOGIN TO WAYNE</span>
+                </button>
+                
+                <div class="auth-links">
+                    <a class="auth-link" onclick="switchTab('register')">
+                        <i class="fas fa-user-plus"></i> Create new account
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form">
+                <div class="input-group">
+                    <label>Full Name</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="regName" placeholder="John Doe">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="regEmail" placeholder="your@email.com">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Username</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-at"></i>
+                        <input type="text" id="regUsername" placeholder="johndoe">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="regPassword" placeholder="••••••••">
+                        <i class="fas fa-eye password-toggle" onclick="togglePassword('regPassword')"></i>
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label>Confirm Password</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="regConfirm" placeholder="••••••••">
+                        <i class="fas fa-eye password-toggle" onclick="togglePassword('regConfirm')"></i>
+                    </div>
+                </div>
+                
+                <button class="auth-btn" onclick="register()" id="registerBtn">
+                    <span>CREATE ACCOUNT</span>
+                </button>
+                
+                <div class="auth-links">
+                    <a class="auth-link" onclick="switchTab('login')">
+                        <i class="fas fa-sign-in-alt"></i> Already have account?
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Reset Password Form -->
+            <div id="resetForm" class="auth-form">
+                <div class="input-group">
+                    <label>Email Address</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="resetEmail" placeholder="your@email.com">
+                    </div>
+                </div>
+                
+                <button class="auth-btn" onclick="resetPassword()" id="resetBtn">
+                    <span>SEND RESET LINK</span>
+                </button>
+                
+                <div class="auth-links">
+                    <a class="auth-link" onclick="switchTab('login')">
+                        <i class="fas fa-arrow-left"></i> Back to Login
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Social Login - exactly like index -->
+            <div class="social-section">
+                <p>Or continue with</p>
+                <div class="social-icons">
+                    <div class="social-icon" onclick="socialLogin('google')"><i class="fab fa-google"></i></div>
+                    <div class="social-icon" onclick="socialLogin('github')"><i class="fab fa-github"></i></div>
+                    <div class="social-icon" onclick="socialLogin('facebook')"><i class="fab fa-facebook-f"></i></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // =====================================================
+        // THREE.JS BACKGROUND - 3 layers exactly like index
+        // =====================================================
+        
+        const canvas = document.getElementById('canvas-bg');
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x0a042e);
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: false });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        
+        // Layer 1 - distant stars
+        const particlesGeometry1 = new THREE.BufferGeometry();
+        const particlesCount1 = 1500;
+        const posArray1 = new Float32Array(particlesCount1 * 3);
+        const colorArray1 = new Float32Array(particlesCount1 * 3);
+        
+        for(let i = 0; i < particlesCount1 * 3; i += 3) {
+            posArray1[i] = (Math.random() - 0.5) * 200;
+            posArray1[i+1] = (Math.random() - 0.5) * 200;
+            posArray1[i+2] = (Math.random() - 0.5) * 200;
+            
+            const color = new THREE.Color();
+            color.setHSL(0.6 + Math.random() * 0.2, 0.3, 0.3 + Math.random() * 0.3);
+            
+            colorArray1[i] = color.r;
+            colorArray1[i+1] = color.g;
+            colorArray1[i+2] = color.b;
+        }
+        
+        particlesGeometry1.setAttribute('position', new THREE.BufferAttribute(posArray1, 3));
+        particlesGeometry1.setAttribute('color', new THREE.BufferAttribute(colorArray1, 3));
+        
+        const particlesMaterial1 = new THREE.PointsMaterial({
+            size: 0.2,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.4,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const particlesMesh1 = new THREE.Points(particlesGeometry1, particlesMaterial1);
+        scene.add(particlesMesh1);
+        
+        // Layer 2 - medium particles
+        const particlesGeometry2 = new THREE.BufferGeometry();
+        const particlesCount2 = 800;
+        const posArray2 = new Float32Array(particlesCount2 * 3);
+        const colorArray2 = new Float32Array(particlesCount2 * 3);
+        
+        for(let i = 0; i < particlesCount2 * 3; i += 3) {
+            posArray2[i] = (Math.random() - 0.5) * 100;
+            posArray2[i+1] = (Math.random() - 0.5) * 100;
+            posArray2[i+2] = (Math.random() - 0.5) * 100;
+            
+            const color = new THREE.Color();
+            if(Math.random() > 0.5) {
+                color.setHSL(0.6 + Math.random() * 0.2, 0.8, 0.5);
+            } else {
+                color.setHSL(0.8 + Math.random() * 0.1, 0.8, 0.5);
+            }
+            
+            colorArray2[i] = color.r;
+            colorArray2[i+1] = color.g;
+            colorArray2[i+2] = color.b;
+        }
+        
+        particlesGeometry2.setAttribute('position', new THREE.BufferAttribute(posArray2, 3));
+        particlesGeometry2.setAttribute('color', new THREE.BufferAttribute(colorArray2, 3));
+        
+        const particlesMaterial2 = new THREE.PointsMaterial({
+            size: 0.15,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.7,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const particlesMesh2 = new THREE.Points(particlesGeometry2, particlesMaterial2);
+        scene.add(particlesMesh2);
+        
+        // Layer 3 - close particles
+        const particlesGeometry3 = new THREE.BufferGeometry();
+        const particlesCount3 = 300;
+        const posArray3 = new Float32Array(particlesCount3 * 3);
+        const colorArray3 = new Float32Array(particlesCount3 * 3);
+        
+        for(let i = 0; i < particlesCount3 * 3; i += 3) {
+            posArray3[i] = (Math.random() - 0.5) * 40;
+            posArray3[i+1] = (Math.random() - 0.5) * 40;
+            posArray3[i+2] = (Math.random() - 0.5) * 40;
+            
+            const color = new THREE.Color();
+            color.setHSL(0.65 + Math.random() * 0.2, 1, 0.6);
+            
+            colorArray3[i] = color.r;
+            colorArray3[i+1] = color.g;
+            colorArray3[i+2] = color.b;
+        }
+        
+        particlesGeometry3.setAttribute('position', new THREE.BufferAttribute(posArray3, 3));
+        particlesGeometry3.setAttribute('color', new THREE.BufferAttribute(colorArray3, 3));
+        
+        const particlesMaterial3 = new THREE.PointsMaterial({
+            size: 0.25,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.9,
+            blending: THREE.AdditiveBlending
+        });
+        
+        const particlesMesh3 = new THREE.Points(particlesGeometry3, particlesMaterial3);
+        scene.add(particlesMesh3);
+        
+        camera.position.z = 30;
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            particlesMesh1.rotation.y += 0.0001;
+            particlesMesh1.rotation.x += 0.00005;
+            
+            particlesMesh2.rotation.y += 0.0003;
+            particlesMesh2.rotation.x += 0.0001;
+            
+            particlesMesh3.rotation.y += 0.0005;
+            particlesMesh3.rotation.x += 0.0002;
+            
+            renderer.render(scene, camera);
+        }
+        
+        animate();
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+        
+        // =====================================================
+        // FLOATING PARTICLES - like index
+        // =====================================================
+        
+        function createFloatingParticles() {
+            const container = document.getElementById('floating-particles');
+            const count = 30;
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'floating-particle';
+                
+                const size = Math.random() * 6 + 2;
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.bottom = '-10px';
+                
+                const duration = Math.random() * 15 + 10;
+                particle.style.animation = `float ${duration}s linear infinite`;
+                particle.style.animationDelay = Math.random() * 5 + 's';
+                
+                particle.style.opacity = Math.random() * 0.3 + 0.1;
+                
+                container.appendChild(particle);
+            }
+        }
+        
+        createFloatingParticles();
+        
+        // =====================================================
+        // AUTH FUNCTIONS
+        // =====================================================
+        
+        function switchTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(el => el.classList.remove('active'));
+            
+            if (tab === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else if (tab === 'register') {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            } else if (tab === 'reset') {
+                document.querySelectorAll('.auth-tab')[2].classList.add('active');
+                document.getElementById('resetForm').classList.add('active');
+            }
+            
+            // Anime.js animation
+            anime({
+                targets: '.auth-form.active',
+                opacity: [0, 1],
+                translateY: [20, 0],
+                duration: 600,
+                easing: 'easeOutQuad'
+            });
+        }
+        
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = event.currentTarget;
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash password-toggle';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye password-toggle';
+            }
+        }
+        
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            
+            container.innerHTML = `
+                <div class="message-box ${type}">
+                    <i class="fas ${icon}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+            
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+        
+        function setLoading(buttonId, isLoading) {
+            const btn = document.getElementById(buttonId);
+            
+            if (isLoading) {
+                btn.innerHTML = '<span class="btn-spinner"></span><span>Processing...</span>';
+                btn.disabled = true;
+            } else {
+                if (buttonId === 'loginBtn') btn.innerHTML = '<span>LOGIN TO WAYNE</span>';
+                else if (buttonId === 'registerBtn') btn.innerHTML = '<span>CREATE ACCOUNT</span>';
+                else if (buttonId === 'resetBtn') btn.innerHTML = '<span>SEND RESET LINK</span>';
+                btn.disabled = false;
+            }
+        }
+        
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showMessage('Please fill in all fields', 'error');
+                return;
+            }
+            
+            setLoading('loginBtn', true);
+            
+            setTimeout(() => {
+                setLoading('loginBtn', false);
+                showMessage('Login successful! Redirecting...', 'success');
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1500);
+            }, 1500);
+        }
+        
+        function register() {
+            showMessage('Registration successful! Please login.', 'success');
+            setTimeout(() => switchTab('login'), 2000);
+        }
+        
+        function resetPassword() {
+            showMessage('Password reset link sent to your email!', 'success');
+            setTimeout(() => switchTab('login'), 2000);
+        }
+        
+        function socialLogin(provider) {
+            showMessage(`Login with ${provider} coming soon!`, 'success');
+        }
+        
+        // Card hover effect - like index
+        const card = document.getElementById('authCard');
+        
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            
+            const rotateX = (y - centerY) / 30;
+            const rotateY = (centerX - x) / 30;
+            
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-5px)`;
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+        });
+    </script>
+</body>
+</html>

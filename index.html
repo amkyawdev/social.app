@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAYNE • Social Community</title>
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a042e;
+            overflow: hidden;
+        }
+        
+        /* Three.js Background */
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+        
+        .loader-container {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        
+        .logo {
+            font-size: 5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #30e9ff, #a5b4ff, #fff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 8px;
+            animation: gradientFlow 8s ease infinite;
+            text-shadow: 0 0 30px rgba(48, 233, 255, 0.5);
+            margin-bottom: 20px;
+        }
+        
+        @keyframes gradientFlow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+        
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(48, 233, 255, 0.2);
+            border-top: 3px solid #30e9ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 20px;
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+        }
+    </style>
+    
+    <!-- Three.js for background -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <!-- Three.js Background -->
+    <canvas id="canvas-bg"></canvas>
+    
+    <div class="loader-container">
+        <div class="logo">WAYNE</div>
+        <div class="subtitle">SOCIAL COMMUNITY</div>
+        <div class="loader"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+    
+    <script>
+        // Three.js Background
+        (function() {
+            const canvas = document.getElementById('canvas-bg');
+            if (!canvas) return;
+            
+            const scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a042e);
+            
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas, alpha: false });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            
+            // Create particles
+            function createParticleLayer(count, spread, size, opacity, saturation) {
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(count * 3);
+                const colors = new Float32Array(count * 3);
+                
+                for (let i = 0; i < count * 3; i += 3) {
+                    positions[i] = (Math.random() - 0.5) * spread;
+                    positions[i+1] = (Math.random() - 0.5) * spread;
+                    positions[i+2] = (Math.random() - 0.5) * spread;
+                    
+                    const color = new THREE.Color();
+                    color.setHSL(0.6 + Math.random() * 0.2, saturation, 0.5);
+                    
+                    colors[i] = color.r;
+                    colors[i+1] = color.g;
+                    colors[i+2] = color.b;
+                }
+                
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+                
+                const material = new THREE.PointsMaterial({
+                    size: size,
+                    vertexColors: true,
+                    transparent: true,
+                    opacity: opacity,
+                    blending: THREE.AdditiveBlending
+                });
+                
+                return new THREE.Points(geometry, material);
+            }
+            
+            const particles1 = createParticleLayer(1500, 200, 0.2, 0.4, 0.3);
+            scene.add(particles1);
+            
+            const particles2 = createParticleLayer(800, 100, 0.15, 0.7, 0.8);
+            scene.add(particles2);
+            
+            const particles3 = createParticleLayer(300, 40, 0.25, 0.9, 1.0);
+            scene.add(particles3);
+            
+            camera.position.z = 30;
+            
+            function animate() {
+                requestAnimationFrame(animate);
+                particles1.rotation.y += 0.0001;
+                particles2.rotation.y += 0.0003;
+                particles3.rotation.y += 0.0005;
+                renderer.render(scene, camera);
+            }
+            
+            animate();
+            
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        })();
+        
+        // Redirect to auth after 2 seconds
+        setTimeout(function() {
+            window.location.href = 'auth/auth.html';
+        }, 2000);
+    </script>
+</body>
+</html>
