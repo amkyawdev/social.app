@@ -53,7 +53,9 @@ let selectedUserAvatar = CURRENT_USER.avatar_icon || 'fa-user-astronaut';
 async function apiRequest(endpoint, options = {}) {
     const url = `${API_URL}${endpoint}`;
     const headers = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'apikey': NAP_TOKEN,
+        'Authorization': `Bearer ${NAP_TOKEN}`
     };
     
     try {
@@ -202,7 +204,7 @@ window.selectUserAvatar = function(icon) {
 // ===== Load Data =====
 async function loadPosts() {
     try {
-        const res = await apiRequest('/posts');
+        const res = await apiRequest('/posts?order=created_at.desc');
         posts = await res.json();
         renderPosts();
     } catch (error) {
@@ -212,11 +214,19 @@ async function loadPosts() {
             {
                 id: "1",
                 user_id: "1",
-                name: "မောင်မောင်",
                 username: "wayne_user",
                 content: "Welcome to WAYNE Social Community! 🎉",
                 likes: 124,
                 comments: 18,
+                created_at: new Date().toISOString()
+            },
+            {
+                id: "2",
+                user_id: "2",
+                username: "zaw_zaw",
+                content: "This is amazing! ✨",
+                likes: 89,
+                comments: 12,
                 created_at: new Date().toISOString()
             }
         ];
@@ -231,7 +241,12 @@ async function loadUsers() {
         return users;
     } catch (error) {
         console.error('Error loading users:', error);
-        return [];
+        users = [
+            { id: "1", name: "မောင်မောင်", username: "wayne_user", avatar_icon: "fa-user-astronaut", status: "online" },
+            { id: "2", name: "ဇော်ဇော်", username: "zaw_zaw", avatar_icon: "fa-user-ninja", status: "online" },
+            { id: "3", name: "သီရိသီရိ", username: "thiri_thiri", avatar_icon: "fa-user-secret", status: "offline" }
+        ];
+        return users;
     }
 }
 
@@ -1186,9 +1201,10 @@ window.toggleTheme = function() {
     }
 };
 
-// ===== Logout =====
+// ===== Logout (No Auth) =====
 window.logout = function() {
-    window.location.href = 'auth/auth.html';
+    alert('Logged out successfully!');
+    // Stay on main page - no auth check
 };
 
 // ===== Section Navigation =====
