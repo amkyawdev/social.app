@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Profile • WAYNE</title>
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        body {
+            padding-top: 60px;
+        }
+        
+        .profile-header {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .profile-cover {
+            height: 200px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .profile-cover img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-avatar-container {
+            position: absolute;
+            bottom: -50px;
+            left: 20px;
+        }
+        
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 4px solid var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--accent);
+        }
+        
+        .profile-info {
+            padding: 60px 20px 20px;
+        }
+        
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+        
+        .profile-username {
+            color: var(--text-soft);
+            font-size: 0.9rem;
+            margin-bottom: 12px;
+        }
+        
+        .profile-bio {
+            color: var(--text-main);
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+        
+        .profile-stats {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-stat {
+            text-align: center;
+        }
+        
+        .profile-stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .profile-stat-label {
+            font-size: 0.8rem;
+            color: var(--text-soft);
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .profile-btn {
+            flex: 1;
+            padding: 10px 20px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--text-main);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .profile-btn:hover {
+            background: rgba(48, 233, 255, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        
+        .profile-btn.primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #000;
+        }
+        
+        .profile-btn.primary:hover {
+            background: #5cf0ff;
+        }
+        
+        .profile-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 20px;
+        }
+        
+        .profile-tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            color: var(--text-soft);
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+        
+        .profile-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+        
+        .profile-tab:hover {
+            color: var(--accent);
+        }
+        
+        .profile-content {
+            padding: 0 20px;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 101;
+        }
+    </style>
+</head>
+<body>
+    <!-- Back Button -->
+    <button class="back-btn" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+    </button>
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-cover" id="profileCover">
+            <!-- Cover image -->
+        </div>
+        <div class="profile-avatar-container">
+            <div class="profile-avatar" id="profileAvatar">
+                <i class="fas fa-user-astronaut"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Info -->
+    <div class="profile-info">
+        <h1 class="profile-name" id="profileName">User Name</h1>
+        <p class="profile-username" id="profileUsername">@username</p>
+        <p class="profile-bio" id="profileBio">No bio yet</p>
+        
+        <div class="profile-stats">
+            <div class="profile-stat">
+                <div class="profile-stat-value" id="postsCount">0</div>
+                <div class="profile-stat-label">Posts</div>
+            </div>
+            <div class="profile-stat">
+                <div class="profile-stat-value" id="followersCount">0</div>
+                <div class="profile-stat-label">Followers</div>
+            </div>
+            <div class="profile-stat">
+                <div class="profile-stat-value" id="followingCount">0</div>
+                <div class="profile-stat-label">Following</div>
+            </div>
+        </div>
+        
+        <div class="profile-actions">
+            <button class="profile-btn primary" onclick="messageUser()">
+                <i class="fas fa-envelope"></i> Message
+            </button>
+            <button class="profile-btn" onclick="followUser()" id="followBtn">
+                <i class="fas fa-user-plus"></i> Follow
+            </button>
+        </div>
+    </div>
+
+    <!-- Profile Tabs -->
+    <div class="profile-tabs">
+        <div class="profile-tab active" onclick="showProfileTab('posts')">
+            <i class="fas fa-grid"></i> Posts
+        </div>
+        <div class="profile-tab" onclick="showProfileTab('about')">
+            <i class="fas fa-user"></i> About
+        </div>
+        <div class="profile-tab" onclick="showProfileTab('media')">
+            <i class="fas fa-image"></i> Media
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="profile-content" id="profileContent">
+        <!-- Posts will be loaded here -->
+    </div>
+
+    <script>
+        // ===== Configuration =====
+        const API_URL = '/api';
+        
+        // Get user ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('id') || '1';
+        
+        let currentProfile = null;
+        
+        // ===== Load Profile =====
+        async function loadProfile() {
+            try {
+                const res = await fetch(`${API_URL}/users/${userId}`);
+                if (res.ok) {
+                    currentProfile = await res.json();
+                    renderProfile(currentProfile);
+                } else {
+                    // Use default user if not found
+                    renderProfile({
+                        name: 'မောင်မောင်',
+                        username: 'wayne_user',
+                        bio: 'Web Developer & Designer',
+                        avatar_icon: 'fa-user-astronaut',
+                        followers: 124,
+                        following: 86,
+                        posts_count: 12
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                // Use default user
+                renderProfile({
+                    name: 'မောင်မောင်',
+                    username: 'wayne_user',
+                    bio: 'Web Developer & Designer',
+                    avatar_icon: 'fa-user-astronaut',
+                    followers: 124,
+                    following: 86,
+                    posts_count: 12
+                });
+            }
+        }
+        
+        // ===== Render Profile =====
+        function renderProfile(user) {
+            document.getElementById('profileName').textContent = user.name || 'User';
+            document.getElementById('profileUsername').textContent = '@' + (user.username || 'user');
+            document.getElementById('profileBio').textContent = user.bio || 'No bio yet';
+            document.getElementById('postsCount').textContent = user.posts_count || 0;
+            document.getElementById('followersCount').textContent = user.followers || 0;
+            document.getElementById('followingCount').textContent = user.following || 0;
+            
+            // Avatar
+            const avatar = document.getElementById('profileAvatar');
+            if (user.avatar) {
+                avatar.innerHTML = `<img src="${user.avatar}" alt="Avatar">`;
+            } else {
+                avatar.innerHTML = `<i class="fas ${user.avatar_icon || 'fa-user-astronaut'}"></i>`;
+            }
+            
+            // Cover
+            const cover = document.getElementById('profileCover');
+            if (user.background_photo) {
+                cover.innerHTML = `<img src="${user.background_photo}" alt="Cover">`;
+            }
+            
+            // Load posts
+            loadProfilePosts(userId);
+        }
+        
+        // ===== Load Profile Posts =====
+        async function loadProfilePosts(uid) {
+            try {
+                const res = await fetch(`${API_URL}/posts?user_id=eq.${uid}&order=created_at.desc`);
+                const posts = await res.json();
+                renderProfilePosts(posts);
+            } catch (error) {
+                console.error('Error loading posts:', error);
+                document.getElementById('profileContent').innerHTML = '<p style="text-align:center;color:var(--text-soft)">No posts yet</p>';
+            }
+        }
+        
+        // ===== Render Profile Posts =====
+        function renderProfilePosts(posts) {
+            const container = document.getElementById('profileContent');
+            if (!posts || posts.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-soft);padding:20px">No posts yet</p>';
+                return;
+            }
+            
+            container.innerHTML = posts.map(post => `
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar">
+                            <i class="fas ${currentProfile?.avatar_icon || 'fa-user-astronaut'}"></i>
+                        </div>
+                        <div class="post-user">
+                            <h4>${currentProfile?.name || 'User'}</h4>
+                            <span class="post-time"><i class="far fa-clock"></i> ${new Date(post.created_at).toLocaleString()}</span>
+                        </div>
+                    </div>
+                    ${post.image ? `<div class="post-image"><img src="${post.image}" alt="Post"></div>` : ''}
+                    <div class="post-content">${post.content}</div>
+                    <div class="post-actions">
+                        <span class="action-tiny"><i class="far fa-heart"></i> ${post.likes || 0}</span>
+                        <span class="action-tiny"><i class="far fa-comment"></i> ${post.comments || 0}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // ===== Profile Tabs =====
+        window.showProfileTab = function(tab) {
+            document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+            event.target.closest('.profile-tab').classList.add('active');
+            
+            if (tab === 'posts') {
+                loadProfilePosts(userId);
+            } else if (tab === 'about') {
+                document.getElementById('profileContent').innerHTML = `
+                    <div class="post-card">
+                        <h4 style="margin-bottom:10px"><i class="fas fa-user"></i> About</h4>
+                        <p>${currentProfile?.bio || 'No bio yet'}</p>
+                        <p style="margin-top:10px;color:var(--text-soft)">
+                            <i class="fas fa-envelope"></i> ${currentProfile?.email || 'email@notset.com'}
+                        </p>
+                    </div>
+                `;
+            } else if (tab === 'media') {
+                document.getElementById('profileContent').innerHTML = '<p style="text-align:center;color:var(--text-soft);padding:20px">No media yet</p>';
+            }
+        };
+        
+        // ===== Actions =====
+        window.goBack = function() {
+            window.location.href = 'index.html';
+        };
+        
+        window.messageUser = function() {
+            showMessage('Messaging coming soon!', 'success');
+        };
+        
+        window.followUser = function() {
+            const btn = document.getElementById('followBtn');
+            if (btn.innerHTML.includes('user-plus')) {
+                btn.innerHTML = '<i class="fas fa-check"></i> Following';
+                btn.classList.add('primary');
+                showMessage('Following user!', 'success');
+            } else {
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Follow';
+                btn.classList.remove('primary');
+            }
+        };
+        
+        // ===== Show Message =====
+        function showMessage(text, type = 'success') {
+            const msg = document.createElement('div');
+            msg.className = `message-box ${type}`;
+            msg.style.cssText = 'position:fixed;top:80px;left:50%;transform:translateX(-50%);padding:12px 24px;border-radius:8px;z-index:1000;animation:fadeIn 0.3s';
+            msg.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${text}`;
+            document.body.appendChild(msg);
+            setTimeout(() => msg.remove(), 3000);
+        }
+        
+        // Initialize
+        loadProfile();
+    </script>
+</body>
+</html>

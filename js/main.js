@@ -535,6 +535,59 @@ window.removeImage = function() {
     selectedImage = null;
 };
 
+// ===== Post Options Menu =====
+window.showPostOptions = function() {
+    const menu = document.getElementById('postOptionsMenu');
+    if (menu) {
+        menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    }
+};
+
+// Close menu when clicking outside
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('postOptionsMenu');
+    const btn = e.target.closest('[onclick="showPostOptions()"]');
+    if (menu && !btn && !menu.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+});
+
+window.triggerFileUpload = function() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.pdf,.doc,.docx,.txt';
+    input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            showMessage(`File "${file.name}" selected for upload`, 'success');
+        }
+    };
+    input.click();
+    document.getElementById('postOptionsMenu').style.display = 'none';
+};
+
+window.showEmojiPicker = function() {
+    const input = document.getElementById('postInput');
+    if (input) {
+        input.value += '😊';
+        input.focus();
+    }
+    document.getElementById('postOptionsMenu').style.display = 'none';
+};
+
+window.addLocation = function() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            showMessage(`Location added: ${position.coords.latitude.toFixed(4)}, ${position.coords.longitude.toFixed(4)}`, 'success');
+        }, function() {
+            showMessage('Unable to get location', 'error');
+        });
+    } else {
+        showMessage('Geolocation not supported', 'error');
+    }
+    document.getElementById('postOptionsMenu').style.display = 'none';
+};
+
 async function uploadImageToCloudinary(file, folder = 'posts') {
     const formData = new FormData();
     formData.append('file', file);
@@ -1201,10 +1254,12 @@ window.toggleTheme = function() {
     }
 };
 
-// ===== Logout (No Auth) =====
+// ===== Logout =====
 window.logout = function() {
-    alert('Logged out successfully!');
-    // Stay on main page - no auth check
+    // Clear user data from localStorage
+    localStorage.removeItem('currentUser');
+    // Redirect to auth page
+    window.location.href = 'auth/auth.html';
 };
 
 // ===== Section Navigation =====
@@ -1245,11 +1300,8 @@ window.showSection = function(section) {
 
 // ===== Utility Functions =====
 window.viewProfile = function(userId) {
-    if (userId === CURRENT_USER.id) {
-        showSection('profile');
-    } else {
-        alert(`View profile for user ${userId}`);
-    }
+    // Redirect to profile page
+    window.location.href = 'profile.html?id=' + userId;
 };
 
 window.viewImage = function(imageUrl) {

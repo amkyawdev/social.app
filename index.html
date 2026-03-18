@@ -108,10 +108,21 @@
                         <button class="hamburger-icon" onclick="triggerImageUpload()" title="Add image">
                             <i class="fas fa-image"></i>
                         </button>
+                        <button class="hamburger-icon" onclick="showPostOptions()" title="More options">
+                            <i class="fas fa-ellipsis-h"></i>
+                        </button>
                         <button class="upload-btn" onclick="uploadPost()">
-                            <i class="fas fa-plus"></i>
+                            <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
+                </div>
+
+                <!-- Post Options Menu -->
+                <div id="postOptionsMenu" class="post-options-menu" style="display: none;">
+                    <div onclick="triggerImageUpload()"><i class="fas fa-image"></i> Add Image</div>
+                    <div onclick="showEmojiPicker()"><i class="fas fa-smile"></i> Add Emoji</div>
+                    <div onclick="triggerFileUpload()"><i class="fas fa-file"></i> Add File</div>
+                    <div onclick="addLocation()"><i class="fas fa-map-marker-alt"></i> Add Location</div>
                 </div>
 
                 <!-- Hidden file input -->
