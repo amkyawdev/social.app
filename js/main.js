@@ -1259,7 +1259,7 @@ window.logout = function() {
     // Clear user data from localStorage
     localStorage.removeItem('currentUser');
     // Redirect to auth page
-    window.location.href = 'auth/auth.html';
+    window.location.href = '../auth/auth.html';
 };
 
 // ===== Section Navigation =====
@@ -1301,7 +1301,7 @@ window.showSection = function(section) {
 // ===== Utility Functions =====
 window.viewProfile = function(userId) {
     // Redirect to profile page
-    window.location.href = 'profile.html?id=' + userId;
+    window.location.href = '../profile.html?id=' + userId;
 };
 
 window.viewImage = function(imageUrl) {
