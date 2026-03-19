@@ -1254,14 +1254,6 @@ window.toggleTheme = function() {
     }
 };
 
-// ===== Logout =====
-window.logout = function() {
-    // Clear user data from localStorage
-    localStorage.removeItem('currentUser');
-    // Redirect to auth page
-    window.location.href = '../auth/auth.html';
-};
-
 // ===== Section Navigation =====
 window.showSection = function(section) {
     document.querySelectorAll('.section-page').forEach(el => el.classList.add('hidden'));
