@@ -1297,25 +1297,6 @@ window.showSection = function(section) {
         }
     });
 };
-
-// ===== Utility Functions =====
-window.viewProfile = function(userId) {
-    // Redirect to profile page
-    window.location.href = '../profile.html?id=' + userId;
-};
-
-window.viewImage = function(imageUrl) {
-    window.open(imageUrl, '_blank');
-};
-
-window.showNotifications = function() {
-    alert('Notifications coming soon!');
-};
-
-window.startVideoCall = function() {
-    alert('Video call coming soon!');
-};
-
 // ===== Initialize =====
 async function init() {
     initThreeBackground();
